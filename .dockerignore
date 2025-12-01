@@ -1,0 +1,23 @@
+# .dockerignore
+
+venv/
+.venv/
+
+Frontend/
+frontend/
+
+notebooks/
+*.ipynb
+
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.git/
+.gitignore
+.DS_Store
+
+.env
+
+test_api.py
