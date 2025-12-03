@@ -13,7 +13,7 @@ def create_dummy_image():
     return img_byte_arr
 
 def test_prediction():
-    print(f"🚀 Starting Test on: {API_URL}")
+    print(f"Starting Test on: {API_URL}")
 
     try:
         image_file = create_dummy_image()
@@ -25,26 +25,26 @@ def test_prediction():
             result = response.json()
             
             if "prediction" in result and "confidence_scores" in result:
-                print("\n✅ Test Passed!")
-                print(f"📄 Filename: {result['filename']}")
-                print(f"🧠 Prediction: {result['prediction']}")
-                print(f"📊 Confidence: {result['confidence_scores']}")
+                print("\nTest Passed!")
+                print(f"Filename: {result['filename']}")
+                print(f"Prediction: {result['prediction']}")
+                print(f"Confidence: {result['confidence_scores']}")
                 sys.exit(0)
             else:
-                print("\n❌ Test Failed: Invalid JSON response structure.")
+                print("\nTest Failed: Invalid JSON response structure.")
                 sys.exit(1)
             
         else:
-            print(f"\n❌ Test Failed! Status Code: {response.status_code}")
+            print(f"\nTest Failed! Status Code: {response.status_code}")
             print(f"Message: {response.text}")
             sys.exit(1)
 
     except requests.exceptions.ConnectionError:
-        print("\n❌ Connection Error: Could not connect to server.")
+        print("\nConnection Error: Could not connect to server.")
         print("Make sure the FastAPI server is running locally on port 8000.")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ An unexpected error occurred: {e}")
+        print(f"\nAn unexpected error occurred: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
