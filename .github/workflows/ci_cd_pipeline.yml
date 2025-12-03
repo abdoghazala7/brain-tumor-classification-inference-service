@@ -1,0 +1,84 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Build Docker Image
+        run: |
+          docker build -t brain-api .
+
+      - name: Run Docker Container
+        run: |
+          docker run -d -p 8000:8000 --name test-container brain-api
+          sleep 15
+
+      - name: Install Test Dependencies
+        run: |
+          pip install requests pillow
+
+      - name: Run API Test
+        run: |
+          python test_api.py
+
+#------------------------------------------------------------------------------------
+
+      - name: Push to Hugging Face Hub
+        if: success()
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global user.email "abdoghazala20@gmail.com"
+          git config --global user.name "Abdo Ghazala"
+          git remote add space https://abdoghazala7:$HF_TOKEN@huggingface.co/spaces/abdoghazala7/brain-tumor-classification-api
+          git push --force space main
+
+      - name: Verify Deployment Status
+        if: success()
+        run: |
+          pip install huggingface_hub
+          python -c "
+          import time
+          import sys
+          from huggingface_hub import HfApi
+
+          api = HfApi()
+          repo_id = 'abdoghazala7/brain-tumor-classification-api'
+
+          print('Waiting for Space to build...')
+          start_time = time.time()
+          timeout = 600
+
+          while True:
+              if time.time() - start_time > timeout:
+                  print('Timeout: Deployment took too long.')
+                  sys.exit(1)
+              
+              try:
+                  info = api.get_space_runtime(repo_id=repo_id)
+                  status = info.stage
+                  print(f'Current Status: {status}')
+                  
+                  if status == 'RUNNING':
+                      print('Deployment Successful!')
+                      sys.exit(0)
+                  elif status in ['BUILD_ERROR', 'RUNTIME_ERROR']:
+                      print('Deployment Failed!')
+                      sys.exit(1)
+              except Exception as e:
+                  print(f'Error checking status: {e}')
+              
+              time.sleep(10)
+          "
