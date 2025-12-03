@@ -20,29 +20,23 @@ jobs:
         run: |
           docker build -t brain-api .
 
-      - name: Run Docker Container & Test
+      - name: Run Docker Container
         run: |
-          docker run -d -p 8000:8000 --name test-container brain-api
-          
-          echo "Waiting for server to start..."
-          for i in {1..60}; do
-            if curl -s http://localhost:8000/ > /dev/null; then
-              echo "Server is up!"
-              break
-            fi
-            echo "Waiting..."
-            sleep 1
-          done
-          
-          if ! curl -s http://localhost:8000/ > /dev/null; then
-            echo "Server failed to start!"
-            docker logs test-container
-            exit 1
-          fi
+          # Run container mapping host port 8000 to container port 7860
+          docker run -d -p 8000:7860 --name test-container brain-api
+          # Wait for the server to start up
+          sleep 15
 
+      - name: Install Test Dependencies
+        run: |
           pip install requests pillow
-          python test_api.py
 
+      - name: Run API Test
+        run: |
+          # Test script connects to localhost:8000
+          python test_api.py
+          
+      #--------------------------------------------------------------------------------------------------------
       - name: Push to Hugging Face Hub
         if: success()
         env:
@@ -64,7 +58,7 @@ jobs:
 
           api = HfApi()
           repo_id = 'abdoghazala7/brain-tumor-classification-api'
-
+          
           print('Waiting for Space to build...')
           start_time = time.time()
           timeout = 600
@@ -73,7 +67,6 @@ jobs:
               if time.time() - start_time > timeout:
                   print('Timeout.')
                   sys.exit(1)
-              
               try:
                   status = api.get_space_runtime(repo_id=repo_id).stage
                   print(f'Status: {status}')
