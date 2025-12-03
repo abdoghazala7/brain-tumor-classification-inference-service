@@ -35,17 +35,28 @@ jobs:
         run: |
           # Test script connects to localhost:8000
           python test_api.py
-          
+
       #--------------------------------------------------------------------------------------------------------
       - name: Push to Hugging Face Hub
         if: success()
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          git lfs install
+
           git config --global user.email "abdoghazala20@gmail.com"
           git config --global user.name "Abdo Ghazala"
+          git init
+          
+          git lfs track "*.pth"
+          
+          git add .gitattributes
+          
+          git add .
+          
+          git commit -m "Deploy from GitHub Actions with LFS"
           git remote add space https://abdoghazala7:$HF_TOKEN@huggingface.co/spaces/abdoghazala7/brain-tumor-classification-api
-          git push --force space main
+          git push --force space master:main
 
       - name: Verify Deployment Status
         if: success()
