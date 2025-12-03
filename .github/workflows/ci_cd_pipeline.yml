@@ -25,7 +25,7 @@ jobs:
           docker run -d -p 8000:8000 --name test-container brain-api
           
           echo "Waiting for server to start..."
-          for i in {1..30}; do
+          for i in {1..60}; do
             if curl -s http://localhost:8000/ > /dev/null; then
               echo "Server is up!"
               break
@@ -42,7 +42,7 @@ jobs:
 
           pip install requests pillow
           python test_api.py
-#______________________________________________________________________________________________________
+
       - name: Push to Hugging Face Hub
         if: success()
         env:
@@ -64,7 +64,7 @@ jobs:
 
           api = HfApi()
           repo_id = 'abdoghazala7/brain-tumor-classification-api'
-          
+
           print('Waiting for Space to build...')
           start_time = time.time()
           timeout = 600
@@ -73,6 +73,7 @@ jobs:
               if time.time() - start_time > timeout:
                   print('Timeout.')
                   sys.exit(1)
+              
               try:
                   status = api.get_space_runtime(repo_id=repo_id).stage
                   print(f'Status: {status}')
