@@ -20,21 +20,29 @@ jobs:
         run: |
           docker build -t brain-api .
 
-      - name: Run Docker Container
+      - name: Run Docker Container & Test
         run: |
           docker run -d -p 8000:8000 --name test-container brain-api
-          sleep 15
+          
+          echo "Waiting for server to start..."
+          for i in {1..30}; do
+            if curl -s http://localhost:8000/ > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting..."
+            sleep 1
+          done
+          
+          if ! curl -s http://localhost:8000/ > /dev/null; then
+            echo "Server failed to start!"
+            docker logs test-container
+            exit 1
+          fi
 
-      - name: Install Test Dependencies
-        run: |
           pip install requests pillow
-
-      - name: Run API Test
-        run: |
           python test_api.py
-
-#------------------------------------------------------------------------------------
-
+#______________________________________________________________________________________________________
       - name: Push to Hugging Face Hub
         if: success()
         env:
@@ -56,29 +64,20 @@ jobs:
 
           api = HfApi()
           repo_id = 'abdoghazala7/brain-tumor-classification-api'
-
+          
           print('Waiting for Space to build...')
           start_time = time.time()
           timeout = 600
 
           while True:
               if time.time() - start_time > timeout:
-                  print('Timeout: Deployment took too long.')
+                  print('Timeout.')
                   sys.exit(1)
-              
               try:
-                  info = api.get_space_runtime(repo_id=repo_id)
-                  status = info.stage
-                  print(f'Current Status: {status}')
-                  
-                  if status == 'RUNNING':
-                      print('Deployment Successful!')
-                      sys.exit(0)
-                  elif status in ['BUILD_ERROR', 'RUNTIME_ERROR']:
-                      print('Deployment Failed!')
-                      sys.exit(1)
-              except Exception as e:
-                  print(f'Error checking status: {e}')
-              
+                  status = api.get_space_runtime(repo_id=repo_id).stage
+                  print(f'Status: {status}')
+                  if status == 'RUNNING': sys.exit(0)
+                  if status in ['BUILD_ERROR', 'RUNTIME_ERROR']: sys.exit(1)
+              except: pass
               time.sleep(10)
           "
