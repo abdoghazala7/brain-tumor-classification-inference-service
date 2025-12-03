@@ -33,6 +33,21 @@ jobs:
         run: |
           python test_api.py
 
+      - name: Prepare README for Hugging Face
+        run: |
+          cat > README_HF.md << 'EOFREADME'
+          ---
+          title: Brain Tumor Classification API
+          emoji: 🧠
+          colorFrom: blue
+          colorTo: purple
+          sdk: docker
+          pinned: false
+          ---
+          
+          EOFREADME
+          cat README.md >> README_HF.md
+
       - name: Push to Hugging Face Hub
         if: success()
         env:
@@ -54,32 +69,32 @@ jobs:
           print("Starting deployment to Hugging Face Space...")
           
           files_to_upload = [
-              ".dockerignore",
-              "Dockerfile",
-              "README.md",
-              "config.py",
-              "efficientnet_finetuned_final.pth",
-              "gunicorn_config.py",
-              "image_utils.py",
-              "main.py",
-              "model_loader.py",
-              "predictor.py",
-              "requirements.txt"
+              (".dockerignore", ".dockerignore"),
+              ("Dockerfile", "Dockerfile"),
+              ("README_HF.md", "README.md"),
+              ("config.py", "config.py"),
+              ("efficientnet_finetuned_final.pth", "efficientnet_finetuned_final.pth"),
+              ("gunicorn_config.py", "gunicorn_config.py"),
+              ("image_utils.py", "image_utils.py"),
+              ("main.py", "main.py"),
+              ("model_loader.py", "model_loader.py"),
+              ("predictor.py", "predictor.py"),
+              ("requirements.txt", "requirements.txt")
           ]
           
-          for file_path in files_to_upload:
+          for local_path, repo_path in files_to_upload:
               try:
-                  print(f"Uploading: {file_path}")
+                  print(f"Uploading: {local_path} -> {repo_path}")
                   api.upload_file(
-                      path_or_fileobj=file_path,
-                      path_in_repo=file_path,
+                      path_or_fileobj=local_path,
+                      path_in_repo=repo_path,
                       repo_id=repo_id,
                       repo_type=repo_type,
                       commit_message="Deploy from GitHub Actions"
                   )
-                  print(f"Successfully uploaded: {file_path}")
+                  print(f"Successfully uploaded: {repo_path}")
               except Exception as e:
-                  print(f"Error uploading {file_path}: {e}")
+                  print(f"Error uploading {local_path}: {e}")
                   raise
           
           print("Deployment completed successfully!")
