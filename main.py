@@ -34,6 +34,7 @@ if sentry_dsn:
     logger.info("✅ Sentry integration enabled.")
 else:
     logger.warning("⚠️ Sentry DSN not found. Monitoring is disabled.")
+    
 
 MAX_FILE_SIZE = 5 * 1024 * 1024
 
@@ -141,6 +142,19 @@ async def predict_image(file: UploadFile = File(...)):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An internal server error occurred processing your request."
         )
+    
+
+@app.get("/sentry-debug")
+async def trigger_error():
+    """
+    Endpoint to test Sentry integration.
+    It forces a ZeroDivisionError.
+    """
+    division_by_zero = 1 / 0
+    return {"message": "Won't be reached"}
+
+
+
 
 if __name__ == "__main__":
     import uvicorn
