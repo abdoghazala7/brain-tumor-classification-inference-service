@@ -21,36 +21,6 @@ Going beyond simple model training, this project implements a complete productio
 4. **CI/CD Pipeline:** Automated testing and deployment using GitHub Actions.  
 5. **Observability:** Real-time error tracking and performance monitoring using **Sentry**.
 
- ## 🏗️ System Architecture (Microservices)
-
-The system is designed using a robust **Client-Server** architecture, ensuring separation of concerns and scalability.
-```mermaid
-graph TD
-    subgraph "Frontend (Streamlit)"
-        User((👤 User)) -->|Uploads MRI Scan| UI[🖥️ Web Interface]
-        UI -->|Sends Image (POST)| API_Call[📡 API Request]
-    end
-
-    subgraph "Backend (FastAPI & Docker)"
-        API_Call -->|Receives Request| API[⚙️ FastAPI Server]
-        API -->|Inference| Model[🧠 EfficientNetB0]
-        Model -->|Prediction| API
-    end
-
-    subgraph "Monitoring & Logging"
-        API -.->|Logs Metrics| Sentry[🚨 Sentry]
-    end
-
-    API -->|Returns JSON| UI
-    UI -->|Displays Result| User
-
-    style User fill:#f9f,stroke:#333,stroke-width:2px
-    style UI fill:#bbf,stroke:#333,stroke-width:2px
-    style API fill:#dfd,stroke:#333,stroke-width:2px
-    style Model fill:#fdd,stroke:#333,stroke-width:2px
-    style Sentry fill:#ddd,stroke:#333,stroke-width:2px
-```
-
 
 ## **🧠 Model Development Journey**
 
