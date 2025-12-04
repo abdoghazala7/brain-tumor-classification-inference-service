@@ -125,6 +125,10 @@ brain-tumor-classification-inference-service/
 └── test_api.py                  # Client script for testing the API locally
 ```
 
+### 🔗 Frontend Repository
+You can find the source code for the **Streamlit Web Application** here:
+👉 **[Brain Tumor Classification WebApp](https://github.com/abdoghazala7/brain-tumor-classification-webapp/tree/main)**
+
 ## **📄 License**
 
 This project is licensed under the MIT License.
