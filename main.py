@@ -144,18 +144,6 @@ async def predict_image(file: UploadFile = File(...)):
         )
     
 
-@app.get("/sentry-debug")
-async def trigger_error():
-    """
-    Endpoint to test Sentry integration.
-    It forces a ZeroDivisionError.
-    """
-    division_by_zero = 1 / 0
-    return {"message": "Won't be reached"}
-
-
-
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
