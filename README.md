@@ -6,35 +6,51 @@ Experience the full system in action through our interactive medical dashboard:
 
 👉 [**NeuroScan AI Dashboard (Streamlit App)**](https://brain-tumor-classification-webapp.streamlit.app/)
 
-The backend API is hosted on Hugging Face Spaces. You can explore the API documentation here:  
-👉 API Swagger UI
+The backend API is hosted on Hugging Face Spaces. You can explore the API documentation here:
+👉 **[API Swagger UI](https://abdoghazala7-brain-tumor-classification-api.hf.space/docs)**
 
 ## **📜 Project Overview**
 
 This project is a comprehensive **End-to-End MLOps solution** for classifying brain tumors from MRI scans into four categories: **Glioma**, **Meningioma**, **Pituitary**, and **No Tumor**.
 
-Going beyond simple model training, this project implements a complete production pipeline including:
+Going beyond simple model training, this project implements a complete production pipeline, including:
 
 1. **Advanced Deep Learning:** Comparing Custom CNNs vs. Transfer Learning strategies.  
 2. **Production API:** A high-performance, asynchronous API built with FastAPI.  
-3. **Containerization:** Fully dockerized application for consistent deployment.  
+3. **Containerization:** Fully Dockerized application for consistent deployment.  
 4. **CI/CD Pipeline:** Automated testing and deployment using GitHub Actions.  
 5. **Observability:** Real-time error tracking and performance monitoring using **Sentry**.
 
-## **🏗️ System Architecture (Microservices)**
+ ## 🏗️ System Architecture (Microservices)
 
-The system follows a decoupled **Client-Server** architecture to ensure scalability and maintainability:
+The system is designed using a robust **Client-Server** architecture, ensuring separation of concerns and scalability.
+```mermaid
+graph TD
+    subgraph "Frontend (Streamlit)"
+        User((👤 User)) -->|Uploads MRI Scan| UI[🖥️ Web Interface]
+        UI -->|Sends Image (POST)| API_Call[📡 API Request]
+    end
 
-graph LR  
-    User((User)) \--\>|Uploads MRI| Frontend\[Streamlit App\\n(Frontend Repo)\]  
-    Frontend \--\>|POST /predict| Backend\[FastAPI Server\\n(Backend Repo)\]  
-    Backend \--\>|Inference| Model\[EfficientNetB0\]  
-    Backend \-.-\>|Logs & Errors| Sentry\[Sentry Monitoring\]  
-    Backend \--\>|JSON Result| Frontend  
-    Frontend \--\>|Visual Report| User
+    subgraph "Backend (FastAPI & Docker)"
+        API_Call -->|Receives Request| API[⚙️ FastAPI Server]
+        API -->|Inference| Model[🧠 EfficientNetB0]
+        Model -->|Prediction| API
+    end
 
-* **Frontend:** [GitHub Repo](https://github.com/abdoghazala7/brain-tumor-classification-webapp/tree/main) \- Hosted on Streamlit Cloud.  
-* **Backend:** [GitHub Repo](https://github.com/abdoghazala7/brain-tumor-classification-inference-service) \- Hosted on Hugging Face Spaces (Docker).
+    subgraph "Monitoring & Logging"
+        API -.->|Logs Metrics| Sentry[🚨 Sentry]
+    end
+
+    API -->|Returns JSON| UI
+    UI -->|Displays Result| User
+
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style UI fill:#bbf,stroke:#333,stroke-width:2px
+    style API fill:#dfd,stroke:#333,stroke-width:2px
+    style Model fill:#fdd,stroke:#333,stroke-width:2px
+    style Sentry fill:#ddd,stroke:#333,stroke-width:2px
+```
+
 
 ## **🧠 Model Development Journey**
 
@@ -142,22 +158,37 @@ docker build \-t brain-api .
 \# Run the container (Mapping port 8000 host \-\> 7860 container)  
 docker run \-d \-p 8000:7860 \--name brain-app brain-api
 
-## **📂 Project Structure**
+## 📂 Project Structure
 
-├── .github/workflows/    \# CI/CD Pipeline configuration  
-├── notebooks/            \# Jupyter notebooks for EDA & Training  
-├── app.py                \# Streamlit Frontend code (in separate repo)  
-├── config.py             \# Project configuration & Env vars  
-├── main.py               \# FastAPI application entry point  
-├── model\_loader.py       \# Logic for loading PyTorch model  
-├── image\_utils.py        \# Image preprocessing logic  
-├── predictor.py          \# Inference logic  
-├── gunicorn\_config.py    \# Production server config  
-├── Dockerfile            \# Docker container definition  
-└── requirements.txt      \# Python dependencies
+The project is organized into a decoupled architecture with separate repositories for the backend API and the frontend application.
+
+### **Backend Repository (Inference Service)**
+This repository handles the model serving, API logic, and dockerization.
+
+```text
+brain-tumor-classification-inference-service/
+│
+├── .github/workflows/
+│   └── ci_cd_pipeline.yml       # GitHub Actions workflow for automated testing & deployment
+│
+├── notebooks/
+│   └── Brain Tumor MRI Classification.ipynb  # Research & Training notebook (EDA, Training, Eval)
+│
+├── .dockerignore                # Files to exclude from Docker build context
+├── .gitignore                   # Files to exclude from Git tracking
+├── Dockerfile                   # Instructions to build the production Docker image
+├── README.md                    # Project documentation
+├── config.py                    # Configuration settings & environment variables loader
+├── efficientnet_finetuned_final.pth  # The trained PyTorch model weights
+├── gunicorn_config.py           # Gunicorn server configuration (workers, timeout)
+├── image_utils.py               # Utility functions for image preprocessing
+├── main.py                      # Main FastAPI application entry point
+├── model_loader.py              # Logic for loading and initializing the model
+├── predictor.py                 # Core inference logic (prediction function)
+├── requirements.txt             # Python dependencies for the backend
+└── test_api.py                  # Client script for testing the API locally
+```
 
 ## **📄 License**
 
 This project is licensed under the MIT License.
-
-**Created with ❤️ by [Abdo Ghazala](https://www.google.com/search?q=https://github.com/abdoghazala7)**
