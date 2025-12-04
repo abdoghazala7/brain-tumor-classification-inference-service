@@ -93,40 +93,6 @@ Automated workflow triggers on every push to the main branch:
 * Integrated **Sentry SDK** to track runtime errors and performance issues in production.  
 * Configured to capture user impact and stack traces instantly.
 
-## **💻 How to Run Locally**
-
-### **Prerequisites**
-
-* Python 3.10+  
-* Docker (Optional but recommended)
-
-### **Method 1: Using Python (Direct)**
-
-1. **Clone the repository:**  
-   git clone \[https://github.com/abdoghazala7/brain-tumor-classification-inference-service.git\](https://github.com/abdoghazala7/brain-tumor-classification-inference-service.git)  
-   cd brain-tumor-classification-inference-service
-
-2. **Install dependencies:**  
-   pip install \-r requirements.txt
-
-3. Set up Environment:  
-   Create a .env file:  
-   MODEL\_NAME=tf\_efficientnet\_lite0  
-   MODEL\_PATH=efficientnet\_finetuned\_final.pth  
-   \# Optional: SENTRY\_DSN=your\_dsn\_here
-
-4. **Run the Server:**  
-   python main.py
-
-5. **Access API:** Go to http://localhost:8000/docs
-
-### **Method 2: Using Docker (Production Simulation)**
-
-\# Build the image  
-docker build \-t brain-api .
-
-\# Run the container (Mapping port 8000 host \-\> 7860 container)  
-docker run \-d \-p 8000:7860 \--name brain-app brain-api
 
 ## 📂 Project Structure
 
