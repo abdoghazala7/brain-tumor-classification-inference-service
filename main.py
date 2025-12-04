@@ -24,9 +24,12 @@ logger = logging.getLogger(__name__)
 sentry_dsn = os.getenv("SENTRY_DSN")
 if sentry_dsn:
     sentry_sdk.init(
-        dsn=sentry_dsn,
+        dsn= sentry_dsn,
+        send_default_pii=True,
+        enable_logs=True,
         traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
+        profile_session_sample_rate=1.0,
+        profile_lifecycle="trace",
     )
     logger.info("✅ Sentry integration enabled.")
 else:
